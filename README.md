@@ -201,4 +201,3 @@ curl -X POST http://localhost:8000/admin/status \
 **Database errors:**
 - The database file `support.db` is created automatically on first run
 - If corrupted, delete it and restart the backend
-hi 
