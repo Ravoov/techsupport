@@ -93,6 +93,45 @@ app.get('/api/admin/email-status', (req, res) => {
   res.json({ configured, sender: configured ? process.env.GMAIL_USER : null });
 });
 
+// Admin: get mailto link for local email sending
+app.get('/api/admin/tickets/:id/mailto', (req, res) => {
+  const { solution } = req.query;
+  if (!solution?.trim()) return res.status(400).json({ error: 'Solution text is required.' });
+
+  const result = db.exec('SELECT username, email, problem FROM tickets WHERE id = ?', [req.params.id]);
+  if (!result.length || !result[0].values.length)
+    return res.status(404).json({ error: 'Ticket not found.' });
+
+  const [username, email, problem] = result[0].values[0];
+  const esc = s => encodeURIComponent(s);
+
+  const subject = `Re: Your Support Ticket #${req.params.id}`;
+  const body = `Hi ${username},
+
+Thank you for reaching out.
+
+Solution:
+${solution}
+
+---
+Your original issue:
+${problem}
+
+Best regards,
+Tech Support Team`;
+
+  const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${esc(subject)}&body=${esc(body)}`;
+
+  // Auto-move to in_progress if still open
+  const cur = db.exec('SELECT status FROM tickets WHERE id = ?', [req.params.id]);
+  if (cur.length && cur[0].values[0][0] === 'open') {
+    db.run('UPDATE tickets SET status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?', ['in_progress', req.params.id]);
+    saveDB();
+  }
+
+  res.json({ mailto: mailtoUrl, email: email });
+});
+
 // Admin: send email — server fetches email, admin browser never sees it
 app.post('/api/admin/tickets/:id/send-email', async (req, res) => {
   const { solution } = req.body;
