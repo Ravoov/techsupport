@@ -3,6 +3,7 @@ from tkinter import messagebox, ttk
 import requests
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import os
 from dotenv import load_dotenv
 
@@ -19,10 +20,142 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 
 def send_local_email(to_email, subject, body):
     try:
-        msg = MIMEText(body)
+        msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = SMTP_EMAIL
         msg["To"] = to_email
+
+        # Create professional HTML email template
+        html = f"""
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body {{
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+                        color: #2c3e50;
+                        margin: 0;
+                        padding: 20px;
+                        background-color: #ecf0f1;
+                        line-height: 1.6;
+                    }}
+                    .wrapper {{
+                        max-width: 680px;
+                        margin: 0 auto;
+                    }}
+                    .container {{
+                        background-color: white;
+                        border-radius: 6px;
+                        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+                        overflow: hidden;
+                    }}
+                    .header {{
+                        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+                        color: white;
+                        padding: 40px 30px;
+                        text-align: center;
+                    }}
+                    .header h1 {{
+                        margin: 0;
+                        font-size: 28px;
+                        font-weight: 700;
+                        letter-spacing: -0.5px;
+                    }}
+                    .header p {{
+                        margin: 8px 0 0 0;
+                        font-size: 14px;
+                        opacity: 0.9;
+                        font-weight: 300;
+                    }}
+                    .content {{
+                        padding: 40px 30px;
+                    }}
+                    .greeting {{
+                        font-size: 16px;
+                        color: #2c3e50;
+                        margin-bottom: 20px;
+                        font-weight: 500;
+                    }}
+                    .update-label {{
+                        display: inline-block;
+                        background-color: #3498db;
+                        color: white;
+                        padding: 6px 14px;
+                        border-radius: 3px;
+                        font-size: 12px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 1px;
+                        margin-bottom: 20px;
+                    }}
+                    .message-box {{
+                        background-color: #f8f9fa;
+                        padding: 20px;
+                        border-radius: 4px;
+                        margin: 20px 0;
+                        line-height: 1.7;
+                        white-space: pre-wrap;
+                        word-wrap: break-word;
+                        color: #2c3e50;
+                        font-size: 15px;
+                    }}
+                    .cta-section {{
+                        margin-top: 30px;
+                        padding-top: 20px;
+                        border-top: 1px solid #ecf0f1;
+                    }}
+                    .cta-text {{
+                        font-size: 14px;
+                        color: #7f8c8d;
+                        margin: 0;
+                    }}
+                    .footer {{
+                        background-color: #f8f9fa;
+                        padding: 30px;
+                        text-align: center;
+                        border-top: 1px solid #ecf0f1;
+                    }}
+                    .footer-text {{
+                        margin: 0;
+                        font-size: 13px;
+                        color: #95a5a6;
+                    }}
+                    .footer-link {{
+                        color: #3498db;
+                        text-decoration: none;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="wrapper">
+                    <div class="container">
+                        <div class="header">
+                            <h1>Tech Support Portal</h1>
+                            <p>Support Ticket Update</p>
+                        </div>
+                        <div class="content">
+                            
+                            
+                            
+                            <div class="message-box">{body}</div>
+                            
+                            <div class="cta-section">
+                                <p class="cta-text">If you have any questions or need further assistance, please don't hesitate to contact our support team by our support page.</p>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            <p class="footer-text">Tech Support Portal | Professional Support Services</p>
+                            <p class="footer-text" style="margin-top: 8px;">© 2026 Tech Support Portal. All rights reserved.</p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </html>
+        """
+
+        part = MIMEText(html, "html")
+        msg.attach(part)
 
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
@@ -90,6 +223,9 @@ class DashboardApp:
 
         save_status_btn = ttk.Button(control_frame, text="Save Status", command=self.save_status)
         save_status_btn.pack(side=tk.LEFT)
+
+        reload_btn = ttk.Button(control_frame, text="Reload", command=self.reload_dashboard)
+        reload_btn.pack(side=tk.LEFT, padx=5)
 
         # Update Section
         ttk.Label(self.right_panel, text="Send Response to User:", font=("Segoe UI", 10, "bold")).pack(anchor="w", pady=(15, 5))
@@ -160,6 +296,16 @@ class DashboardApp:
             self.details.config(state=tk.DISABLED)
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load ticket: {e}")
+
+    def reload_dashboard(self):
+        """Reload all tickets and refresh the dashboard"""
+        try:
+            self.load_tickets()
+            if self.current_ticket_id:
+                self.load_ticket_details(self.current_ticket_id)
+            messagebox.showinfo("Success", "Dashboard reloaded.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to reload dashboard: {e}")
 
     def save_status(self):
         if not self.current_ticket_id: return

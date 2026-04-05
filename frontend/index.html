@@ -2,26 +2,38 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Customer Support</title>
+  <title>Tech Support Portal</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <header class="header">
+    <h1>Tech Support Portal</h1>
+  </header>
+
   <div class="container">
-    <h1>Customer Support</h1>
-    
+    <div class="form-wrapper">
+      <h2>Submit a Complaint</h2>
+      
+      <div class="form-group">
+        <label for="username">Your Username</label>
+        <input id="username" type="text" placeholder="bobsmith123" />
+      </div>
 
-    <label>Username</label>
-<input id="username" type="text" placeholder="Your name" />
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input id="email" type="email" placeholder="john@example.com" />
+        <p class="form-help">We will use this to respond to your issue. It is stored securely.</p>
+      </div>
 
-<label>Email</label>
-<input id="email" type="email" placeholder="you@example.com" />
+      <div class="form-group">
+        <label for="message">Describe Your Issue</label>
+        <textarea id="message"></textarea>
+      </div>
 
-<label>Message</label>
-<textarea id="message"></textarea>
+      <button id="submitBtn" class="submit-btn">Submit Complaint</button>
 
-    <button id="submitBtn">Submit Ticket</button>
-
-    <div id="result"></div>
+      <div id="result"></div>
+    </div>
   </div>
 
   <script src="app.js"></script>

@@ -1,7 +1,5 @@
 const BASE_URL = "http://127.0.0.1:8000";
 
-
-
 document.getElementById("submitBtn").addEventListener("click", async () => {
   const username = document.getElementById("username").value;
   const email = document.getElementById("email").value;
@@ -14,6 +12,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   });
 
   const data = await res.json();
-  document.getElementById("result").innerText =
-    `Ticket #${data.ticket_id} created.`;
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerText = `Ticket #${data.ticket_id} created.`;
+  resultDiv.classList.add("show");
 });
