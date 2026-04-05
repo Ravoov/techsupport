@@ -14,7 +14,9 @@ techsupport/
 │   ├── app.py            # Main API server
 │   └── database.py       # SQLite database functions
 ├── dashboard/            # Support staff GUI interface
-│   └── dashboard.py      # Tkinter admin dashboard
+│   ├── dashboard.py      # Tkinter admin dashboard
+│   ├── .env.example      # Email config template
+│   └── .env              # Email credentials (your secrets)
 ├── run.bat               # Startup script
 └── README.md             # This file
 ```
@@ -57,16 +59,24 @@ SQLite database with two tables:
 
 1. **Install dependencies:**
    ```bash
-   pip install flask flask-cors requests
+   pip install flask flask-cors requests python-dotenv
    ```
 
-2. **Configure email (optional):**
-   - Edit `dashboard/dashboard.py`
-   - Add your Gmail credentials:
-     ```python
-     SMTP_EMAIL = "your-email@gmail.com"
-     SMTP_PASSWORD = "your-app-password"  # Use Gmail app password for security
+2. **Configure SMTP Email (optional):**
+   - Navigate to the `dashboard/` folder
+   - Copy `.env.example` to `.env`:
+     ```bash
+     copy .env.example .env
      ```
+   - Edit `.env` and add your Gmail credentials:
+     ```
+     SMTP_EMAIL=your-email@gmail.com
+     SMTP_PASSWORD=your-app-password
+     SMTP_SERVER=smtp.gmail.com
+     SMTP_PORT=587
+     ```
+   - **Important:** Use a [Gmail App Password](https://support.google.com/accounts/answer/185833), not your regular password
+   - **Note:** The `.env` file is in `.gitignore` to protect sensitive credentials
 
 ## Running the System
 
@@ -178,9 +188,10 @@ curl -X POST http://localhost:8000/admin/status \
 ## Troubleshooting
 
 **Dashboard won't send emails:**
-- Ensure SMTP credentials are configured in `dashboard/dashboard.py`
+- Ensure `dashboard/.env` file is created and has your SMTP credentials filled in
+- Copy values from `dashboard/.env.example` if needed: `copy dashboard\.env.example dashboard\.env`
 - For Gmail, use an [App Password](https://support.google.com/accounts/answer/185833) instead of your regular password
-- Check that less secure apps are enabled (if not using App Password)
+- Verify `python-dotenv` is installed: `pip install python-dotenv`
 
 **Frontend can't connect to backend:**
 - Verify backend is running on port 8000
@@ -190,16 +201,3 @@ curl -X POST http://localhost:8000/admin/status \
 **Database errors:**
 - The database file `support.db` is created automatically on first run
 - If corrupted, delete it and restart the backend
-
-## Future Enhancements
-
-- User authentication & multi-admin support
-- Ticket priority levels
-- File attachments
-- Email notifications to customers
-- Search/filter functionality
-- Export reports
-
-## License
-
-This project is provided as-is for educational and business use.
