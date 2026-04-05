@@ -68,12 +68,12 @@ This launches:
 - Dashboard GUI
 Each in its own window.
 
-run_all.bat CONTENTS
-@echo off echo ============================================ echo     STARTING FULL SUPPORT SYSTEM (LOCAL) echo ============================================
-echo. echo Starting Backend API... start cmd /k "cd backend && python app.py"
-echo. echo Starting Frontend (Python HTTP Server)... start cmd /k "cd frontend && python -m http.server 5500"
-echo. echo Starting Dashboard GUI... start cmd /k "cd dashboard && python dashboard.py"
-echo. echo ============================================ echo   All services launched in separate windows echo ============================================ pause
+`run_all.bat CONTENTS`
+`@echo off echo ============================================ echo     STARTING FULL SUPPORT SYSTEM (LOCAL) echo` `============================================`
+`echo. echo Starting Backend API... start cmd /k "cd backend && python app.py"`
+`echo. echo Starting Frontend (Python HTTP Server)... start cmd /k "cd frontend && python -m http.server 5500"`
+`echo. echo Starting Dashboard GUI... start cmd /k "cd dashboard && python dashboard.py"`
+`echo. echo ============================================ echo   All services launched in separate windows echo ============================================ pause`
 
 
 
