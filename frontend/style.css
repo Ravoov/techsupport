@@ -1,0 +1,28 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #d6bdbd;
+}
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  background: rgb(240, 236, 236);
+  padding: 20px;
+  border-radius: 8px;
+}
+label {
+  display: block;
+  margin-top: 10px;
+}
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+}
+button {
+  margin-top: 15px;
+  padding: 10px 15px;
+}
+#result {
+  margin-top: 15px;
+  color: green;
+}
