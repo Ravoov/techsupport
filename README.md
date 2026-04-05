@@ -1,79 +1,205 @@
-A lightweight, privacy‑focused support ticket system built with:
-Frontend: HTML, CSS, JavaScript (no Node) Backend: Python Flask API (hosted on Render) Database: SQLite (hosted on Render with persistent disk) Dashboard: Python GUI (Tkinter) running locally Email Sending: Local only (dashboard handles SMTP)
-This architecture ensures user emails are never exposed to the dashboard and Render never sends emails (Render blocks SMTP).
+# Customer Support Ticket System
 
-FEATURES
-User Frontend
-- Submit support tickets
-- Fields: username, email, message
-- Pure HTML/CSS/JS
-Backend API (Render)
-- Stores tickets in SQLite
-- Stores updates
-- Stores status
-- Hides user email from dashboard
-- Provides admin endpoints
-Dashboard GUI (Local)
-- View all tickets
-- View username, message, status, updates
-- Change ticket status
-- Send updates
-- Sends emails locally (SMTP)
-Privacy Model
-- Dashboard never sees user email except when fetching it for sending
-- Backend never sends emails
-- Render never touches SMTP
+A full-stack customer support ticket management system with a web frontend for customers, a REST API backend, and a GUI dashboard for support staff to manage tickets and communicate with customers.
 
-PROJECT STRUCTURE
-project-root/ frontend/ index.html style.css app.js backend/ app.py database.py emailer.py requirements.txt dashboard/ dashboard.py run_all.bat
+## Project Structure
 
-BACKEND SETUP (RENDER)
-- Push backend folder to GitHub
-Files required: app.py database.py emailer.py requirements.txt
-- requirements.txt
-flask flask-cors gunicorn
-- Create a Render Web Service
-Runtime: Python 3 Build command: pip install -r requirements.txt Start command: gunicorn app:app
-- Add a Persistent Disk
-Name: db Size: 1GB Mount path: /var/data
-Update database path in database.py: DB_NAME = "/var/data/support.db"
-- Deploy
-Render gives you a URL like: https://your-backend.onrender.com (your-backend.onrender.com in Bing)
-Use this URL in: frontend/app.js dashboard/dashboard.py
+```
+techsupport/
+├── frontend/              # Web UI for customers
+│   ├── index.html        # Main form page
+│   ├── app.js            # Frontend logic
+│   └── style.css         # Styling
+├── backend/              # Flask REST API
+│   ├── app.py            # Main API server
+│   └── database.py       # SQLite database functions
+├── dashboard/            # Support staff GUI interface
+│   └── dashboard.py      # Tkinter admin dashboard
+├── run.bat               # Startup script
+└── README.md             # This file
+```
 
-FRONTEND SETUP (LOCAL)
-Serve the frontend using Python:
-cd frontend python -m http.server 5500
-Open: http://127.0.0.1:5500 (127.0.0.1 in Bing)
+## Features
 
-DASHBOARD SETUP (LOCAL)
-Install dependencies: pip install requests
-Run: cd dashboard python dashboard.py
-Dashboard communicates with Render backend and sends emails locally.
+### Customer Portal (Frontend)
+- Submit support tickets with username, email, and message
+- Receive instant ticket ID confirmation
+- Clean, simple web interface
 
-EMAIL SENDING (LOCAL ONLY)
-Dashboard uses your local SMTP credentials:
-SMTP_EMAIL = "your_email@gmail.com" SMTP_PASSWORD = "your_app_password"
-Create a Gmail App Password:
-- Enable 2-Step Verification
-- Go to https://myaccount.google.com/apppasswords (myaccount.google.com in Bing)
-- Create an app password
-- Paste it into dashboard.py
+### Admin Dashboard
+- View all support tickets in a list
+- Click tickets to view full details and update history
+- Change ticket status (open → in-progress → closed)
+- Send updates to customers via email
+- Real-time ticket updates
 
-LOCAL TESTING (ONE CLICK)
-Use run_all.bat
-This launches:
-- Backend (Flask)
-- Frontend (Python HTTP server)
-- Dashboard GUI
-Each in its own window.
+### Backend API
+REST endpoints for ticket management:
+- `POST /support/request` - Create new support ticket
+- `GET /admin/tickets` - List all tickets (admin only)
+- `GET /admin/ticket/<ticket_id>` - Get ticket details with updates
+- `POST /admin/update` - Add message update to ticket
+- `POST /admin/status` - Change ticket status
+- `GET /admin/email/<ticket_id>` - Get customer email
 
-`run_all.bat CONTENTS`
-`@echo off echo ============================================ echo     STARTING FULL SUPPORT SYSTEM (LOCAL) echo` `============================================`
-`echo. echo Starting Backend API... start cmd /k "cd backend && python app.py"`
-`echo. echo Starting Frontend (Python HTTP Server)... start cmd /k "cd frontend && python -m http.server 5500"`
-`echo. echo Starting Dashboard GUI... start cmd /k "cd dashboard && python dashboard.py"`
-`echo. echo ============================================ echo   All services launched in separate windows echo ============================================ pause`
+### Database
+SQLite database with two tables:
+- **tickets** - Stores ticket info (id, email, username, message, status)
+- **updates** - Stores communication history with timestamps
 
+## Setup & Installation
 
+### Prerequisites
+- Python 3.7+
+- pip (Python package manager)
 
+### Installation
+
+1. **Install dependencies:**
+   ```bash
+   pip install flask flask-cors requests
+   ```
+
+2. **Configure email (optional):**
+   - Edit `dashboard/dashboard.py`
+   - Add your Gmail credentials:
+     ```python
+     SMTP_EMAIL = "your-email@gmail.com"
+     SMTP_PASSWORD = "your-app-password"  # Use Gmail app password for security
+     ```
+
+## Running the System
+
+### Option 1: Automated Startup (Windows)
+```bash
+run.bat
+```
+This launches all three components in separate terminal windows.
+
+### Option 2: Manual Startup
+
+**Terminal 1 - Backend API:**
+```bash
+cd backend
+python app.py
+```
+Backend runs on `http://localhost:8000`
+
+**Terminal 2 - Frontend:**
+```bash
+cd frontend
+python -m http.server 5500
+```
+Frontend accessible at `http://localhost:5500`
+
+**Terminal 3 - Dashboard:**
+```bash
+cd dashboard
+python dashboard.py
+```
+Opens the admin dashboard GUI window.
+
+## Usage
+
+### For Customers
+1. Open `http://localhost:5500` in your browser
+2. Enter username, email, and support message
+3. Click "Submit Ticket"
+4. Your ticket ID will appear on screen
+
+### For Support Staff
+1. Dashboard opens automatically (if using run.bat)
+2. View ticket list on the left side
+3. Click a ticket to view details
+4. Use dropdown to change status (open/in-progress/closed)
+5. Type message in text box and click "Send Update" to respond
+6. Updates are sent via email to customer
+
+## API Examples
+
+### Create a Support Ticket
+```bash
+curl -X POST http://localhost:8000/support/request \
+  -H "Content-Type: application/json" \
+  -d "{\"username\": \"John\", \"email\": \"john@example.com\", \"message\": \"Can't login\"}"
+```
+
+### Get All Tickets (Admin)
+```bash
+curl http://localhost:8000/admin/tickets
+```
+
+### Update Ticket Status
+```bash
+curl -X POST http://localhost:8000/admin/status \
+  -H "Content-Type: application/json" \
+  -d "{\"ticket_id\": 1, \"status\": \"in-progress\"}"
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                   CUSTOMER BROWSER                      │
+│              (HTML/JS Frontend - Port 5500)            │
+└────────────────────┬────────────────────────────────────┘
+                     │ HTTP Requests
+                     ↓
+┌─────────────────────────────────────────────────────────┐
+│              FLASK REST API (Port 8000)                 │
+│              (Backend - app.py)                         │
+└────────────────────┬────────────────────────────────────┘
+                     │ SQLite Queries
+                     ↓
+┌─────────────────────────────────────────────────────────┐
+│           SQLITE DATABASE (support.db)                  │
+│          (Tickets & Updates Tables)                    │
+└─────────────────────────────────────────────────────────┘
+                     ↑
+                     │ REST Calls
+                     │
+┌─────────────────────────────────────────────────────────┐
+│        SUPPORT DASHBOARD GUI (Tkinter)                  │
+│           (Admin Interface)                             │
+│     - View & manage tickets                             │
+│     - Send email updates                                │
+└─────────────────────────────────────────────────────────┘
+```
+
+## File Details
+
+- **app.py** - Flask backend with CORS support, handles all ticket operations
+- **database.py** - SQLite abstraction layer for database operations
+- **dashboard.py** - Tkinter GUI application for support staff administration
+- **app.js** - Frontend JavaScript for form submission and API communication
+- **index.html** - Customer-facing web form
+- **style.css** - UI styling
+
+## Troubleshooting
+
+**Dashboard won't send emails:**
+- Ensure SMTP credentials are configured in `dashboard/dashboard.py`
+- For Gmail, use an [App Password](https://support.google.com/accounts/answer/185833) instead of your regular password
+- Check that less secure apps are enabled (if not using App Password)
+
+**Frontend can't connect to backend:**
+- Verify backend is running on port 8000
+- Check that Flask is installed: `pip install flask flask-cors`
+- CORS is enabled, so cross-origin requests should work
+
+**Database errors:**
+- The database file `support.db` is created automatically on first run
+- If corrupted, delete it and restart the backend
+
+## Future Enhancements
+
+- User authentication & multi-admin support
+- Ticket priority levels
+- File attachments
+- Email notifications to customers
+- Search/filter functionality
+- Export reports
+
+## License
+
+This project is provided as-is for educational and business use.
