@@ -6,8 +6,8 @@ import smtplib
 
 BASE_URL = "http://127.0.0.1:8000"
 
-SMTP_EMAIL = "bermansleepstudy@gmail.com"
-SMTP_PASSWORD = "arfr xjwf iqhn itzp"
+SMTP_EMAIL = ""
+SMTP_PASSWORD = ""
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
